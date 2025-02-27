@@ -1,0 +1,33 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.8.1",
+    "bcryptjs": "^3.0.1",
+    "cheerio": "^1.0.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "finnhub": "^1.2.19",
+    "groq-sdk": "^0.15.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.10.0",
+    "morgan": "^1.10.0",
+    "newspaperjs": "^1.0.8",
+    "node-cron": "^3.0.3",
+    "nodemon": "^3.1.9",
+    "proxy-chain": "^2.5.6",
+    "puppeteer": "^24.2.1",
+    "winston": "^3.17.0"
+  },
+  "description": "",
+  "devDependencies": {
+    "dotenv": "^16.4.7"
+  }
+}
