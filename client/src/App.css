@@ -1,0 +1,67 @@
+.app {
+  display: flex;
+  justify-content: center;
+
+  .container {
+    width: 1200px;
+
+    .home {
+      padding: 10px 0px;
+
+      form {
+        margin-top: 50px;
+
+        input {
+          padding: 10px;
+          width: 400px;
+          border: none;
+          border-bottom: 1px solid gray;
+        }
+
+        .liststock {
+          display: flex;
+          justify-content: center;
+          flex-direction: column;
+          padding: 10px 10px;
+          margin: 20px 0px;
+          overflow: auto;
+          overflow-x: hidden;
+
+
+          .stockInfo {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid gray;
+            padding: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            font-family: 'Courier New', Courier, monospace;
+
+            &:nth-child(odd) {
+              background-color: #f2f2f2;
+            }
+
+            &:hover {
+              background-color: gray;
+              color: white;
+              background-image: linear-gradient(to left, rgba(128, 128, 128, 0), rgba(128, 128, 128, 1));
+            }
+          }
+        }
+      }
+    }
+
+    .stock {
+      display: flex;
+      flex-direction: column;
+      gap: 60px;
+
+      .stockInfo {
+        display: flex;
+        justify-content: space-between;
+        padding: 100px;
+      }
+    }
+  }
+}
