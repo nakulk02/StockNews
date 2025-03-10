@@ -1,38 +1,67 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.app {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
 
-.App-link {
-  color: #61dafb;
-}
+  .container {
+    width: 1200px;
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
+    .home {
+      padding: 10px 0px;
+
+      form {
+        margin-top: 50px;
+
+        input {
+          padding: 10px;
+          width: 400px;
+          border: none;
+          border-bottom: 1px solid gray;
+        }
+
+        .liststock {
+          display: flex;
+          justify-content: center;
+          flex-direction: column;
+          padding: 10px 10px;
+          margin: 20px 0px;
+          overflow: auto;
+          overflow-x: hidden;
+
+
+          .stockInfo {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid gray;
+            padding: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            font-family: 'Courier New', Courier, monospace;
+
+            &:nth-child(odd) {
+              background-color: #f2f2f2;
+            }
+
+            &:hover {
+              background-color: gray;
+              color: white;
+              background-image: linear-gradient(to left, rgba(128, 128, 128, 0), rgba(128, 128, 128, 1));
+            }
+          }
+        }
+      }
+    }
+
+    .stock {
+      display: flex;
+      flex-direction: column;
+      gap: 60px;
+
+      .stockInfo {
+        display: flex;
+        justify-content: space-between;
+        padding: 100px;
+      }
+    }
   }
 }
