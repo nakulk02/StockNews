@@ -1,20 +1,29 @@
-const {user,stockDetail} = require("../models/userModel");
-const logger = require("../utils/logger");
-const Groq=require('groq-sdk');
-const groq= new Groq({apiKey:process.env.GROQ_API_KEY});
-const {generateToken}=require("../middlewares/authMiddleware");
+import { User } from "../models/userModel.js"; 
+import { StockDetail } from "../models/userModel.js"; 
+import loggerInit from "../utils/logger.js";
+import {envConfig} from "../config/envConfig.js";
+import { generateToken } from "../middlewares/authMiddleware.js";
 
-
-const login=async(req,res)=>{
+const logger = loggerInit();
+export async function login(req,res){
   try{
     const email=req.body['email'],password=req.body['passowrd'];
-    const user =await user.findOne({email:email});
+    const user =await User.findOne({email:email});
     if (!user) return res.status(401).json({ message: "User not found" });
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
-
     const token = generateToken(user);
+    
     res.json({token});
+  }catch(error){
+    logger.error(`Error logging in: ${error.message}`);
+    res.status(500).json({ message: "Please try again" });
+  }
+}
+export function startup(req,res)
+{
+  try{
+    console.log("server running");
   }catch(error){
     logger.error(`Error logging in: ${error.message}`);
     res.status(500).json({ message: "Please try again" });
@@ -22,10 +31,10 @@ const login=async(req,res)=>{
 }
 
 
-const addUser=async (req,res)=>{
+export async function addUser (req,res){
   try {
     logger.info("Adding user all users...");
-    const newUser=new user({"name":req.body['name'],
+    const newUser=new User({"name":req.body['name'],
       "email":req.body['email'],
       "password":req.body['password']
     });
@@ -37,10 +46,10 @@ const addUser=async (req,res)=>{
 
 }
 
-const fetchStockInfo=async (req,res)=>{
+export async function fetchStockInfo (req,res){
   try{
-    const symbol=req.body["symbol"];
-    const stockdetail=await stockdetail.findOne({symbol:symbol})
+    const symbol=req.params.stock;
+    const stockdetail=await StockDetail.findOne({symbol:symbol})
     if(stockdetail){
       res.json(stockdetail);
     }
@@ -57,9 +66,9 @@ const fetchStockInfo=async (req,res)=>{
   }
 }
 
-const fetchStockList=async (req,res)=>{
+export async function fetchStockList (req,res){
   try{
-      const stocklist=await stockDetail.find().select("name symbol icon");
+      const stocklist=await StockDetail.find().select("name symbol icon");
       res.json(stocklist);
     }
     catch(error)
@@ -70,10 +79,10 @@ const fetchStockList=async (req,res)=>{
 }
 
 
-const getUsers = async (req, res) => {
+export async function getUsers (req, res) {
     try {
         logger.info("Fetching all users...");
-        const users = await users.find();
+        const users = await User.find();
         logger.info(`Fetched ${users.length} users.`);
         res.json(users);
     } catch (error) {
@@ -81,48 +90,3 @@ const getUsers = async (req, res) => {
         res.status(500).json({ message: "Error fetching users" });
     }
 };
-
-const getGroqResponse=async (req, res) => {
-    try {
-      const { messages, model, temperature, max_tokens, top_p, stream, stop } = req.body;
-  
-      const temp={
-                    "messages": [
-                    {
-                        "role": "user",
-                        "content": "html kya hai\n"
-                    },
-                    {
-                        "role": "assistant",
-                        "content": "HTML (Hypertext Markup Language) is a standard markup language used to create web pages..."
-                    }
-                    ],
-                    "model": "llama3-8b-8192",
-                    "temperature": 1,
-                    "max_tokens": 1024,
-                    "top_p": 1,
-                    "stream": true,
-                    "stop": null
-                }
-      const chatCompletion = await groq.chat.completions.create({
-        messages,
-        model,
-        temperature,
-        max_tokens,
-        top_p,
-        stream,
-        stop
-      });
-  
-      res.setHeader('Content-Type', 'text/plain');
-      for await (const chunk of chatCompletion) {
-        res.write(chunk.choices[0]?.delta?.content || '');
-      }
-      res.end();
-    } catch (error) {
-      console.error('Error:', error);
-      res.status(500).send('Internal Server Error');
-    }
-  }
-
-module.exports = { getUsers,getGroqResponse,addUser,fetchStockList,fetchStockInfo,login };

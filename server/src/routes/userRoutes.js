@@ -1,12 +1,19 @@
-const express = require("express");
-const { getUsers,getGroqResponse,addUser,fetchStockList,fetchStockInfo,login} = require("../controllers/userController");
-const {authMiddleware} = require("../middleware/authMiddleware");
-const router = express.Router();
+import express from "express";
+import { 
+    startup,
+    getUsers, 
+    addUser, 
+    fetchStockList, 
+    fetchStockInfo, 
+    login 
+} from "../controllers/userController.js";
+import { authMiddleware } from "../middlewares/authMiddleware.js";
 
-router.post("/",login);
+export const router = express.Router();
+
+router.get("/",startup);
+router.post("/login",login);
 router.post("/add_user",authMiddleware,addUser);
 router.get("/users",authMiddleware, getUsers);
-router.post('/compare',authMiddleware,getGroqResponse);
-router.post("/stock_info",authMiddleware,fetchStockInfo);
+router.get("/stock_info/:stock",fetchStockInfo);
 router.post("/stock_list",authMiddleware,fetchStockList);
-module.exports = router;

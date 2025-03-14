@@ -1,4 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
+import {Link} from "react-router-dom";
+import {Grid,TextField,Button} from "@mui/material";
 
 function Home() {
 
@@ -27,49 +29,12 @@ function Home() {
       dayhigh: 777,
       daylow: 745
     },
-    {
-      id: 4,
-      symbol: 'APPL',
-      identifier: 'Apple',
+    {id: 4,
+      symbol: 'TSLA',
+      identifier: 'Tesla',
       open: 752,
       dayhigh: 777,
-      daylow: 745
-    },{
-      id: 5,
-      symbol: 'APPL',
-      identifier: 'Apple',
-      open: 752,
-      dayhigh: 777,
-      daylow: 745
-    },{
-      id: 6,
-      symbol: 'APPL',
-      identifier: 'Apple',
-      open: 752,
-      dayhigh: 777,
-      daylow: 745
-    },{
-      id: 7,
-      symbol: 'APPL',
-      identifier: 'Apple',
-      open: 752,
-      dayhigh: 777,
-      daylow: 745
-    },{
-      id: 8,
-      symbol: 'APPL',
-      identifier: 'Apple',
-      open: 752,
-      dayhigh: 777,
-      daylow: 745
-    },{
-      id: 9,
-      symbol: 'APPL',
-      identifier: 'Apple',
-      open: 752,
-      dayhigh: 777,
-      daylow: 745
-    },
+      daylow: 745}
   ];
 
   let [searchStock,setSearchStock] = useState("");
@@ -78,25 +43,36 @@ function Home() {
     setSearchStock(()=>{return e.target.value});
   }
 
+
+
   return (
     <div className='home'>
-      <form>
-        <input onChange={handleChange} name='stockName' autoComplete='true' placeholder='Enter Stock Name' required />
-        <div className="liststock">
+      <Grid container sx={{width:"50%"}}>
+      <Grid item xs={12}>
+        <TextField sx={{"width":"100%"}} id="outlined-basic" onChange={handleChange} name='stockName' label="Outlined" variant="outlined" />
+      </Grid>
           {stock && stock.map((ele) => {
             if(searchStock!=="" && !ele.identifier.toLowerCase().startsWith(searchStock.toLowerCase())) return;
             return (
-              <div className="stockInfo" key={ele.id}>
+              <Grid item xs={12}>
+                <Link to={`/stock/${ele.symbol}`}>
+              <Button variant="outlined" sx={{"width":"100%"}} key={ele.symbol}>
+                <Grid item xs={6} sx={{display:"flex",justifyContent:"left"}}>
                 <div className="name">
                   <p>{ele.identifier}</p>
                 </div>
+                </Grid>
+                <Grid item xs={6} sx={{display:"flex",justifyContent:"right"}}>
                 <div className="info">
                   <p>{ele.open}</p>
                 </div>
-              </div>)
-          })}
-        </div>
-      </form>
+                </Grid>
+          </Button>
+                </Link>
+          </Grid>
+              )
+            })}
+            </Grid>
     </div>
   )
 }

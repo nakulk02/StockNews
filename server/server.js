@@ -1,31 +1,35 @@
+import express from "express";
+import cors from "cors";
+import morgan from "morgan";
+import loggerInit from "./src/utils/logger.js";
+import {router} from "./src/routes/userRoutes.js";
+import cron from "node-cron";
+import {connectDB} from "./src/config/db.js";
+import mongoose from "mongoose";
+import { symbolToName } from "./src/utils/utils.js";
+import { getNews } from './src/services/userServices.js';
+import {envConfig} from './src/config/envConfig.js';
 
 
-const express = require("express");
-const dotenv = require("dotenv");
-const cors = require("cors");
-const morgan = require("morgan");
-const logger = require("./src/utils/logger");
-const userRoutes = require("./src/routes/userRoutes");
-const cron = require("node-cron");
-const connectDB = require("./src/config/db");
-const mongoose =require("mongoose");
-const {symbolToName} =require("./src/utils/utils");
-const {getNews} =require('./src/services/userServices');
-
-dotenv.config();
 connectDB();
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors(
+    {
+        origin: "http://localhost:3000",  // Exact frontend origin
+        credentials: true     
+    }
+));
 
+const logger = loggerInit();
 app.use(morgan("combined", { stream: { write: (message) => logger.info(message.trim()) } }));
 
-app.use("/api", userRoutes);
+app.use("/api", router);
 
 
 cron.schedule("0 * * * *", async() => {
-    await updateNews();
+    // await updateNews();
     console.log("Task running every hour:", new Date());
     
 });
@@ -71,7 +75,21 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: "Server Error" });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = envConfig.port || 5000;
 app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
     logger.info(`Server running on port ${PORT}`);
 });
+
+// console.log("get news start");
+
+// getNews("TSLA","2025-03-09","2025-03-10")
+// .then(res=>console.log(res))
+// .catch(err=>{
+//     console.log("idahr err");
+//     console.log(err);
+// })
+// .finally(()=>{
+//     console.log("has run");
+// })
+// console.log("get news end");

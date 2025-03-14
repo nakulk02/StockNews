@@ -1,4 +1,4 @@
-const symbolToName={
+export const symbolToName={
     'TSLA':'Tesla',
     'AAPL':'Apple',
     'GOOG':'Alphabet',
@@ -17,4 +17,4 @@ const symbolToName={
     'XIAO':'Xiaoming',
 }
 
-module.exports={symbolToName}
+// module.exports={symbolToName}
