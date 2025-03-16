@@ -5,7 +5,7 @@ A web application that displays stock information, news, and summaries using dat
 ## 🚀 Features
 - Display detailed stock information with real-time updates
 - Visualize stock trends using **Candlestick Charts**
-- Summarize financial news using the **Groq API**
+- Summarize financial news using the **Transformers**
 - Efficient data fetching using **Axios**
 - Organized code structure with reusable components
 
@@ -13,7 +13,7 @@ A web application that displays stock information, news, and summaries using dat
 - **Frontend:** React.js, Material-UI (MUI), Chart.js
 - **Backend:** Node.js, Express.js
 - **Database:** MongoDB
-- **APIs Used:** Finnhub API, Groq API
+- **APIs Used:** Finnhub API
 
 ## 📂 Project Structure
 ```
@@ -55,7 +55,6 @@ StockNews/
 PORT=5000
 MONGO_URI=<your_mongodb_uri>
 FINNHUB_API_KEY=<your_finnhub_api_key>
-GROQ_API_KEY=<your_groq_api_key>
 ```
 
 **Client `.env` (for React frontend)**
@@ -83,7 +82,7 @@ REACT_APP_API_BASE_URL=http://localhost:5000
 |-------------------|---------|----------------------------|
 | `/api/stocks`      | `GET`   | Fetches stock data         |
 | `/api/news`        | `GET`   | Fetches financial news     |
-| `/api/summarize`   | `POST`  | Summarizes articles via Groq API |
+| `/api/summarize`   | `POST`  | Summarizes articles using Transformers |
 
 ## 🧩 Contributing
 Contributions are welcome! To contribute:
@@ -98,7 +97,7 @@ This project is licensed under the **MIT License**.
 
 ## 🙌 Acknowledgements
 - [Finnhub](https://finnhub.io/) for financial data
-- [Groq](https://groq.com/) for summarization
+- [Transformers](https://huggingface.co/facebook/bart-large-cnn) for summarization
 - [Material-UI](https://mui.com/) for UI components
 
 ---
