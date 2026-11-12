@@ -1,0 +1,69 @@
+# docker compose up --build
+# Web UI: http://localhost:3000   API: http://localhost:5000   RAG service: http://localhost:8001/docs
+services:
+  mongo:
+    image: mongo:7.0
+    volumes: [mongo-data:/data/db]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      retries: 5
+
+  redis:
+    image: redis:7.4-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      retries: 5
+
+  chroma:
+    image: chromadb/chroma:0.6.3
+    volumes: [chroma-data:/chroma/chroma]
+    environment:
+      ANONYMIZED_TELEMETRY: "False"
+
+  rag-service:
+    build: ./rag-service
+    ports: ["8001:8001"]
+    environment:
+      CHROMA_HOST: chroma
+      CHROMA_PORT: "8000"
+      REDIS_URL: redis://redis:6379/0
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-local}
+      LLM_PROVIDER: ${LLM_PROVIDER:-anthropic}
+      LLM_MODEL: ${LLM_MODEL:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+    depends_on:
+      chroma: { condition: service_started }
+      redis: { condition: service_healthy }
+
+  server:
+    build: ./server
+    ports: ["5000:5000"]
+    environment:
+      PORT: "5000"
+      MONGO_URI: mongodb://mongo:27017/stocknews
+      FINNHUB: ${FINNHUB_API_KEY:-}
+      JWT_SECRET: ${JWT_SECRET:-change-me}
+      REDIS_URL: redis://redis:6379/1
+      RAG_SERVICE_URL: http://rag-service:8001
+      NEWS_CRON_ENABLED: ${NEWS_CRON_ENABLED:-false}
+      CORS_ORIGIN: http://localhost:3000
+    depends_on:
+      mongo: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      rag-service: { condition: service_started }
+
+  client:
+    build:
+      context: ./client
+      args:
+        REACT_APP_API_BASE_URL: http://localhost:5000
+    ports: ["3000:80"]
+    depends_on: [server]
+
+volumes:
+  mongo-data:
+  chroma-data:
