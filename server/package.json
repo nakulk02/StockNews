@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "update-news": "node scripts/update-news.js"
   },
   "type": "module",
   "author": "",
@@ -15,10 +16,12 @@
     "bcryptjs": "^3.0.1",
     "cheerio": "^1.0.0",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "finnhub": "^1.2.19",
     "got": "^14.4.6",
     "groq-sdk": "^0.15.0",
+    "ioredis": "^5.4.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.10.0",
     "morgan": "^1.10.0",
@@ -26,12 +29,9 @@
     "node-cron": "^3.0.3",
     "nodemon": "^3.1.9",
     "proxy-chain": "^2.5.6",
-    "puppeteer": "^24.2.1",
     "tough-cookie": "^5.1.2",
     "winston": "^3.17.0"
   },
   "description": "",
-  "devDependencies": {
-    "dotenv": "^16.4.7"
-  }
+  "devDependencies": {}
 }
