@@ -1,0 +1,12 @@
+[
+  {"id": "aapl-news-risk", "symbol": "AAPL", "question": "What's the latest news risk for AAPL?", "expected_urls": ["https://news.example.com/aapl/eu-app-store-fine", "https://news.example.com/aapl/mac-chip-shortage"]},
+  {"id": "aapl-regulation", "symbol": "AAPL", "question": "Has Apple run into trouble with regulators in Europe?", "expected_urls": ["https://news.example.com/aapl/eu-app-store-fine"]},
+  {"id": "aapl-supply", "symbol": "AAPL", "question": "Are there any supply problems that could delay Apple products?", "expected_urls": ["https://news.example.com/aapl/mac-chip-shortage"]},
+  {"id": "aapl-capital-return", "symbol": "AAPL", "question": "How much is Apple returning to shareholders?", "expected_urls": ["https://news.example.com/aapl/buyback-dividend"]},
+  {"id": "tsla-safety", "symbol": "TSLA", "question": "Is there a safety recall affecting Tesla cars?", "expected_urls": ["https://news.example.com/tsla/steering-recall"]},
+  {"id": "tsla-margins", "symbol": "TSLA", "question": "What is pressuring Tesla's profit margins?", "expected_urls": ["https://news.example.com/tsla/deliveries-miss"]},
+  {"id": "msft-cloud", "symbol": "MSFT", "question": "How fast is Microsoft's cloud business growing?", "expected_urls": ["https://news.example.com/msft/azure-growth"]},
+  {"id": "msft-legal", "symbol": "MSFT", "question": "Is Microsoft under any antitrust investigation?", "expected_urls": ["https://news.example.com/msft/ftc-cloud-probe"]},
+  {"id": "amzn-reliability", "symbol": "AMZN", "question": "Did Amazon have any service reliability problems recently?", "expected_urls": ["https://news.example.com/amzn/aws-outage"]},
+  {"id": "amzn-labour", "symbol": "AMZN", "question": "What labour risks does Amazon face?", "expected_urls": ["https://news.example.com/amzn/union-drive"]}
+]
