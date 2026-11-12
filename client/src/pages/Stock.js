@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Grid,Box, Card,CircularProgress, CardContent, Typography, Divider, Paper, Container ,Button  } from '@mui/material';
 import CandlestickChart from './CandlestickChart';
+import AskStock from './AskStock';
 import {axiosInstance} from "../axois/axiosInstance";
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { useNavigate } from 'react-router-dom';
@@ -162,6 +163,7 @@ export default function Stock() {
             </Paper>
               </Grid>
                 </Grid>
+            <AskStock symbol={stock_name} />
       </>
       }
         </Box>

@@ -5,7 +5,8 @@ import {
     addUser, 
     fetchStockList, 
     fetchStockInfo, 
-    login 
+    login,
+    askStock
 } from "../controllers/userController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 
@@ -17,3 +18,4 @@ router.post("/add_user",authMiddleware,addUser);
 router.get("/users",authMiddleware, getUsers);
 router.get("/stock_info/:stock",fetchStockInfo);
 router.post("/stock_list",authMiddleware,fetchStockList);
+router.post("/stocks/:symbol/ask",askStock);

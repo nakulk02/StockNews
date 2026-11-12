@@ -4,11 +4,15 @@ import { symbolToName } from '../utils/utils.js';
 import { Article } from 'newspaperjs';
 import finnhub from 'finnhub';
 import {envConfig} from '../config/envConfig.js';
+import { pipeline } from '@xenova/transformers';
+import { cached } from '../utils/cache.js';
+import { ingestArticles } from './ragClient.js';
 const logger =loggerInit();
 const api_key = finnhub.ApiClient.instance.authentications['api_key'];
-api_key.apiKey = envConfig.finnhub.toString();
+api_key.apiKey = String(envConfig.finnhub ?? "");
 const finnhubClient = new finnhub.DefaultApi();
-import { pipeline } from '@xenova/transformers';
+
+const FINNHUB_NEWS_TTL_SECONDS = 15 * 60;
 
 
 async function articleParse(url)
@@ -33,78 +37,58 @@ async function articleParse(url)
     }
 }
 
-const price=[{
-    "2025-03-13":{
-        "c": 261.74,
-        "h": 263.31,
-        "l": 260.68,
-        "o": 261.07,
-        "pc": 259.45,
-        "t": 1582641000 
-      },
-      "2025-03-13":{
-        "c": 241.74,
-        "h": 213.31,
-        "l": 250.68,
-        "o": 261.07,
-        "pc": 259.45,
-        "t": 1582641000 
-      },"2025-03-13":{
-        "c": 161.74,
-        "h": 163.31,
-        "l": 160.68,
-        "o": 261.07,
-        "pc": 259.45,
-        "t": 1582641000 
-      },"2025-03-13":{
-        "c": 261.74,
-        "h": 263.31,
-        "l": 260.68,
-        "o": 261.07,
-        "pc": 259.45,
-        "t": 1582641000 
-      },"2025-03-13":{
-        "c": 261.74,
-        "h": 263.31,
-        "l": 260.68,
-        "o": 261.07,
-        "pc": 259.45,
-        "t": 1582641000 
-      }
-}]
+/** Finnhub company news, cached in Redis for 15 minutes per symbol and date range. */
+export async function fetchCompanyNews(symbol, start_date, end_date) {
+    return cached(`finnhub:news:${symbol}:${start_date}:${end_date}`, FINNHUB_NEWS_TTL_SECONDS, () =>
+        new Promise((resolve, reject) => {
+            finnhubClient.companyNews(symbol, start_date, end_date, (error, data) =>
+                error ? reject(error) : resolve(data ?? [])
+            );
+        })
+    );
+}
 
-
-
-
+/**
+ * Fetch recent news for a symbol, scrape each article, store BART summaries
+ * on the StockDetail document, and send the full article text to the RAG
+ * service for indexing.
+ */
 export async function getNews(symbol,start_date,end_date){
-    finnhubClient.companyNews(symbol, start_date,end_date, async(error, data, response) => {
-        const urlList=[];
-        for(let entry in data){
-            urlList.push(data[entry].url)
-        }
-        const results=await Promise.all(urlList.map(articleParse));
-        const cleanResult =[];
-        for( let index in results)
-        {
-            if(results[index]===null)
-            {
-                continue;
-            }
-            cleanResult.push(results[index]);
-        }
-        if(cleanResult.length>0)
-        {
-            const summarized_resp= await summarizeArticles(cleanResult);
-            try{
-                const result=await StockDetail.findOneAndUpdate({symbol:symbol},{$set:{'news':summarized_resp,'updated_on':Date.now(),'symbol':symbol,'name':symbolToName["symbol"]}},{upsert:true});
-                logger.info("Updated stock info:"+symbol);
-            }
-            catch(err)
-            {
-                logger.error("Error in updating stock info:"+err);
-            }
-        }
+    const { value: items, cached: fromCache, ms } = await fetchCompanyNews(symbol, start_date, end_date);
+    logger.info(`Finnhub news ${symbol}: ${items.length} items (${fromCache ? "cache hit" : "API"}, ${ms} ms)`);
+
+    const texts = await Promise.all(items.map((item) => articleParse(item.url)));
+    const articles = [];
+    texts.forEach((text, i) => {
+        if (!text) return;
+        const item = items[i];
+        articles.push({
+            symbol,
+            title: item.headline || "",
+            url: item.url,
+            source: item.source || "",
+            published_at: new Date((item.datetime || 0) * 1000).toISOString(),
+            text,
+        });
     });
+    if (articles.length === 0) return { symbol, articles: 0 };
+
+    await ingestArticles(articles);
+
+    const summarized_resp = await summarizeArticles(articles.map((a) => a.text));
+    try{
+        await StockDetail.findOneAndUpdate(
+            {symbol:symbol},
+            {$set:{'news':summarized_resp,'updated_on':Date.now(),'symbol':symbol,'name':symbolToName[symbol] || symbol}},
+            {upsert:true}
+        );
+        logger.info("Updated stock info:"+symbol);
+    }
+    catch(err)
+    {
+        logger.error("Error in updating stock info:"+err);
+    }
+    return { symbol, articles: articles.length };
 }
 
 let summarizer;
@@ -124,7 +108,6 @@ async function summarizeArticles(articles) {
                     min_length: 200,   
                     do_sample: false  // Ensures deterministic results
                 });
-                console.log(result)
                 return result[0].summary_text;  // Extract summary text
             } catch (error) {
                 console.error('Error summarizing article:', error.message);
@@ -133,6 +116,5 @@ async function summarizeArticles(articles) {
         })
     );
 
-    console.log(' Combined Summary:\n', summaries.join('\n\n'));
     return summaries.join('\n\n');
 }

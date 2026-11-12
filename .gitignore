@@ -1,0 +1,21 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# Dependencies and build output
+node_modules/
+client/build/
+
+# Python
+rag-service/.venv/
+__pycache__/
+.pytest_cache/
+
+# Local data and eval output
+rag-service/data/
+rag-service/eval/results/

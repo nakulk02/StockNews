@@ -3,6 +3,7 @@ import { StockDetail } from "../models/userModel.js";
 import loggerInit from "../utils/logger.js";
 import {envConfig} from "../config/envConfig.js";
 import { generateToken } from "../middlewares/authMiddleware.js";
+import { askRag } from "../services/ragClient.js";
 
 const logger = loggerInit();
 export async function login(req,res){
@@ -90,3 +91,31 @@ export async function getUsers (req, res) {
         res.status(500).json({ message: "Error fetching users" });
     }
 };
+
+const SYMBOL_RE = /^[A-Z.]{1,10}$/;
+
+/**
+ * POST /api/stocks/:symbol/ask  { question, days? }
+ * Proxies to the RAG service's /query and returns a cited answer.
+ */
+export async function askStock(req, res) {
+  const symbol = String(req.params.symbol || "").toUpperCase();
+  const question = typeof req.body?.question === "string" ? req.body.question.trim() : "";
+  const days = Number.isInteger(req.body?.days) ? req.body.days : undefined;
+
+  if (!SYMBOL_RE.test(symbol)) return res.status(400).json({ message: "Invalid stock symbol" });
+  if (question.length < 3 || question.length > 1000) {
+    return res.status(400).json({ message: "question must be 3-1000 characters" });
+  }
+
+  try {
+    const result = await askRag({ symbol, question, days });
+    logger.info(`ask ${symbol}: cached=${result.cached} citations=${result.citations.length} ${result.latency_ms} ms`);
+    res.json(result);
+  } catch (error) {
+    const status = error.response?.status;
+    logger.error(`RAG query failed for ${symbol}: ${error.message}`);
+    if (status === 422) return res.status(400).json({ message: "Invalid question" });
+    res.status(502).json({ message: "The news Q&A service is unavailable. Please try again later." });
+  }
+}

@@ -17,7 +17,7 @@ const app = express();
 app.use(express.json());
 app.use(cors(
     {
-        origin: "http://localhost:3000",  // Exact frontend origin
+        origin: envConfig.corsOrigin,  // Exact frontend origin
         credentials: true     
     }
 ));
@@ -28,11 +28,14 @@ app.use(morgan("combined", { stream: { write: (message) => logger.info(message.t
 app.use("/api", router);
 
 
-cron.schedule("0 * * * *", async() => {
-    // await updateNews();
-    console.log("Task running every hour:", new Date());
-    
-});
+// Hourly: fetch Finnhub news for every tracked symbol, summarise it, and index
+// it in the RAG service. Off unless NEWS_CRON_ENABLED=true.
+if (envConfig.newsCronEnabled) {
+    cron.schedule("0 * * * *", async() => {
+        logger.info("News update job started");
+        await updateNews();
+    });
+}
 
 
 async function updateNews(){
